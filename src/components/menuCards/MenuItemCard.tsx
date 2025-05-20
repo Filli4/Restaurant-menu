@@ -81,8 +81,8 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
           <Image
             src={firebaseImageUrl} // <-- Use the fetched Download URL here!
             alt={item.name}
-            width={500} // Set appropriate dimensions
-            height={300} // Set appropriate dimensions
+            width={150} // Set appropriate dimensions
+            height={50} // Set appropriate dimensions
             className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             priority={parseInt(item.id) < 200} // Example: Prioritize first few images

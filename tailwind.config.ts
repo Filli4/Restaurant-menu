@@ -1,13 +1,14 @@
-import type { Config } from 'tailwindcss'
-
-const config: Config = {
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}', // If you also use pages router
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',   // Key for App Router
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}", // Include if you might use pages dir
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}", // Essential for App Router
   ],
   theme: {
     extend: {
+      // You can add custom theme extensions here
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
@@ -15,6 +16,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    
+  ], // Add official plugins here if needed (e.g., require('@tailwindcss/forms'))
 }
-export default config

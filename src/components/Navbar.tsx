@@ -18,14 +18,7 @@ export default function Navbar() {
               Home
             </Link>
           </li>
-          <li>
-            <Link
-              href="/Menu"
-              className="hover:text-yellow-400 transition-colors pb-1 border-b-2 border-transparent hover:border-yellow-400"
-            >
-              Menu
-            </Link>
-          </li>
+          
           {/* Add more links here if needed */}
         </ul>
       </div>

@@ -1,26 +1,24 @@
 // next.config.js
+import nextBundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = nextBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* Add your other config options here if any */
-  // reactStrictMode: true, // It's good practice to have this enabled
-
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'firebasestorage.googleapis.com',
-        // port: '', // Not needed for standard HTTPS
-        // pathname: '/v0/b/YOUR_PROJECT_ID.appspot.com/o/**', // Optional: Be more specific if you want to restrict to your bucket/path
+        hostname: 'firebasestorage.googleapis.com', // This is correct
+        port: '',
+        // THIS IS THE CRITICAL PART - ensure it matches your actual URL structure
+        pathname: '/v0/b/restaurant-menu-d551e.firebasestorage.app/o/**',
       },
-      // Add other patterns if you fetch images from other domains
-      // {
-      //   protocol: 'https',
-      //   hostname: 'another-image-source.com',
-      // },
     ],
   },
 };
 
-export default nextConfig; // This is correct for ES Modules if your package.json has "type": "module"
-// If not using "type": "module", you'd use: module.exports = nextConfig;
+export default withBundleAnalyzer(nextConfig);

@@ -1,12 +1,17 @@
 // src/components/menuCards/MenuCategorySection.tsx
-import { MenuCategory, MenuItem } from '@/types/menu'; // MenuItem might not be strictly needed here if only passing through
+import React from 'react'; // Import React
+import { MenuCategory, MenuItem } from '@/types/menu';
 import MenuItemCard from './MenuItemCard';
 
 interface MenuCategorySectionProps {
   category: MenuCategory;
 }
 
-export default function MenuCategorySection({ category }: MenuCategorySectionProps) {
+// Using React.memo to prevent re-renders if the category prop hasn't changed.
+// This is beneficial if the parent component re-renders for other reasons.
+const MenuCategorySection = React.memo(function MenuCategorySection({ category }: MenuCategorySectionProps) {
+  console.log(`Rendering Category: ${category.name}`); // For debugging re-renders
+
   return (
     <section aria-labelledby={`category-title-${category.id}`} className="mb-12 sm:mb-16">
       <h2
@@ -17,8 +22,9 @@ export default function MenuCategorySection({ category }: MenuCategorySectionPro
       </h2>
       {category.items.length > 0 ? (
         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {category.items.map((item: MenuItem) => ( // Explicitly type item here if needed
-            <MenuItemCard key={item.id} item={item} />
+          {category.items.map((item: MenuItem, index: number) => (
+            // Pass index to MenuItemCard if you want to set priority based on overall item index
+            <MenuItemCard key={item.id} item={item} itemIndexInCategory={index} categoryId={category.id} />
           ))}
         </div>
       ) : (
@@ -26,4 +32,6 @@ export default function MenuCategorySection({ category }: MenuCategorySectionPro
       )}
     </section>
   );
-}
+});
+
+export default MenuCategorySection;

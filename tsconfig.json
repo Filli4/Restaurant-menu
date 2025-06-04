@@ -1,3 +1,4 @@
+/* //tsconfig.json
 {
   "compilerOptions": {
     "target": "ES2017",
@@ -22,6 +23,47 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next.config.cjs", "tailwind.config.cjs"],
-  "exclude": ["node_modules"]
+  "include": ["next-env.d.ts", "**///*.ts", "**/*.tsx", ".next/types/**/*.ts", "next.config.cjs", "tailwind.config.cjs"],
+ // "exclude": ["node_modules"]
+//}
+
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",          // Include all .ts files in src and its subdirectories
+    "src/**/*.tsx",         // Include all .tsx files in src and its subdirectories
+    "__tests__/**/*.ts",    // Include all .ts files in __tests__ and its subdirectories
+    "__tests__/**/*.tsx",   // Include all .tsx files in __tests__ and its subdirectories
+    ".next/types/**/*.ts",
+    "next.config.js",      // Assuming your next.config is .cjs
+    "tailwind.config.cjs",  // Assuming your tailwind.config is .cjs
+    "jest.config.cjs"       // Include your Jest config file (assuming it's .cjs)
+                            // If it's jest.config.js, change this to "jest.config.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

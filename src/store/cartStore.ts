@@ -1,15 +1,16 @@
 // src/store/cartStore.ts
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { MenuItem } from '@/types/menu'; // MenuItem is imported
+import type { MenuItem } from '@/types/menu';
 
-// CartItem is defined and exported here. This is the primary export.
 export interface CartItem extends MenuItem {
   quantity: number;
 }
 
 interface CartState {
   items: CartItem[];
+  isCartPanelOpen: boolean;
+
   addItem: (item: MenuItem) => void;
   removeItem: (itemId: string) => void;
   incrementQuantity: (itemId: string) => void;
@@ -17,30 +18,45 @@ interface CartState {
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  toggleCartPanel: () => void;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
-      // ... your store logic ...
       items: [],
+      isCartPanelOpen: false,
 
-      addItem: (item) =>
+      addItem: (itemToAdd: MenuItem) =>
         set((state) => {
-          const existingItem = state.items.find((i) => i.id === item.id);
+          const wasCartEmpty = state.items.length === 0; // Check if cart was empty BEFORE adding
+          const existingItem = state.items.find((i) => i.id === itemToAdd.id);
+
+          let newItems;
           if (existingItem) {
+            newItems = state.items.map((i) =>
+              i.id === itemToAdd.id ? { ...i, quantity: i.quantity + 1 } : i
+            );
             return {
-              items: state.items.map((i) =>
-                i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-              ),
+              items: newItems,
+              // For existing items, DO NOT change isCartPanelOpen
+              // isCartPanelOpen: state.isCartPanelOpen 
+            };
+          } else {
+            newItems = [...state.items, { ...itemToAdd, quantity: 1 }];
+            return {
+              items: newItems,
+              // Auto-open panel ONLY if the cart was previously empty
+              isCartPanelOpen: wasCartEmpty ? true : state.isCartPanelOpen,
             };
           }
-          return { items: [...state.items, { ...item, quantity: 1 }] };
         }),
 
       removeItem: (itemId) =>
         set((state) => ({
           items: state.items.filter((item) => item.id !== itemId),
+          // Consider if panel should close if cart becomes empty.
+          // isCartPanelOpen: state.items.filter((item) => item.id !== itemId).length > 0 ? state.isCartPanelOpen : false,
         })),
 
       incrementQuantity: (itemId) =>
@@ -48,18 +64,27 @@ export const useCartStore = create<CartState>()(
           items: state.items.map((item) =>
             item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
           ),
+          // DO NOT change isCartPanelOpen on increment
         })),
 
       decrementQuantity: (itemId) =>
-        set((state) => ({
-          items: state.items
+        set((state) => {
+          const updatedItems = state.items
             .map((item) =>
               item.id === itemId ? { ...item, quantity: Math.max(0, item.quantity - 1) } : item
             )
-            .filter((item) => item.quantity > 0),
-        })),
+            .filter((item) => item.quantity > 0);
+          
+          // If cart becomes empty after decrement, decide if panel should close.
+          // Let's keep it open to show "empty" message if it was already open.
+          // User can close via toggle or clearCart.
+          return { items: updatedItems };
+        }),
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ 
+        items: [],
+        isCartPanelOpen: false 
+      }),
 
       getTotalItems: () => {
         return get().items.reduce((total, item) => total + item.quantity, 0);
@@ -67,15 +92,19 @@ export const useCartStore = create<CartState>()(
       getTotalPrice: () => {
         return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
       },
+      
+      toggleCartPanel: () => set((state) => ({ isCartPanelOpen: !state.isCartPanelOpen })),
+
     }),
     {
       name: 'restaurant-menu-cart',
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ 
+          items: state.items, 
+          isCartPanelOpen: state.isCartPanelOpen 
+      }),
     }
   )
 );
 
-// Valfritt: Exportera typer för enklare användning i komponenter
-// CartItem is already exported above.
-// MenuItem is imported, so re-exporting it here is fine if desired.
 export type { MenuItem };

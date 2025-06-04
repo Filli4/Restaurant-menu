@@ -1,47 +1,43 @@
 // src/components/menuCards/MenuItemCard.tsx
 'use client';
 
-import React from 'react';
+import React from 'react'; // Import React
 import { useCartStore, MenuItem } from '@/store/cartStore';
-import ItemImageDisplay from '../ItemImageDisplay'; // Adjust path if needed
+import ItemImageDisplay from '../ItemImageDisplay';
 
 interface MenuItemCardProps {
   item: MenuItem;
+  itemIndexInCategory: number; // Index of the item within its category
+  categoryId: string;         // ID of the category (e.g., 'Appetizers')
 }
 
-// Optional: Define specific placeholders for MenuItemCard if they differ significantly
-// from ItemImageDisplay's defaults. For now, we'll rely on ItemImageDisplay's defaults
-// or pass custom ones if needed.
-
-export default function MenuItemCard({ item }: MenuItemCardProps) {
+// Using React.memo for MenuItemCard as it's rendered in a list
+// and can prevent re-renders if individual item props haven't changed.
+const MenuItemCard = React.memo(function MenuItemCard({ item, itemIndexInCategory, categoryId }: MenuItemCardProps) {
   const addToCart = useCartStore((state) => state.addItem);
 
   const handleAddToCart = () => {
     addToCart(item);
   };
 
-  // Determine the correct 'sizes' prop based on your grid layout
-  // Example: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
   const imageSizes = "(max-width: 639px) 90vw, (max-width: 1023px) 45vw, (max-width: 1279px) 30vw, 22vw";
-  // Adjust these values:
-  // - 90vw: Almost full width on small screens (minus padding/margins)
-  // - 45vw: Roughly half width for 2 columns (minus gaps)
-  // - 30vw: Roughly third width for 3 columns
-  // - 22vw: Roughly quarter width for 4 columns
+
+  // Determine image priority:
+  // Example: Prioritize the first 1-2 items in the very first category shown.
+  // This is a heuristic and might need adjustment based on your typical first category.
+  // Assumes categories are rendered in a somewhat stable order.
+  const isPriorityImage = categoryId === "Appetizers" && itemIndexInCategory < 2; // Prioritize first 2 appetizers
+
 
   return (
     <div className="h-full w-full bg-white rounded-xl shadow-lg overflow-hidden flex flex-col group hover:shadow-2xl transition-all duration-300 ease-in-out">
-      {/* This div is the sized, relative parent for ItemImageDisplay */}
-      <div className="relative w-full h-48 sm:h-56 overflow-hidden rounded-t-xl bg-gray-200"> {/* Added bg for loading state */}
+      <div className="relative w-full h-48 sm:h-56 overflow-hidden rounded-t-xl bg-gray-200">
         <ItemImageDisplay
           imagePath={item.imageUrl}
           altText={item.name}
-          sizes={imageSizes} // Pass the calculated sizes
+          sizes={imageSizes}
           imageClassName="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
-          priority={parseInt(item.id) < 200} // Assuming item.id is numeric string
-          // You can pass custom loading/error components here if needed:
-          // loadingComponent={<YourCardLoadingPlaceholder />}
-          // errorComponent={<YourCardErrorPlaceholder />}
+          priority={isPriorityImage}
         />
       </div>
 
@@ -67,4 +63,6 @@ export default function MenuItemCard({ item }: MenuItemCardProps) {
       </div>
     </div>
   );
-}
+});
+
+export default MenuItemCard;

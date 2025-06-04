@@ -1,63 +1,77 @@
 // src/app/api/menu/route.ts
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, query /*, orderBy */ } from 'firebase/firestore'; // Removed orderBy for now, can be added if fields exist
+import { db } from '@/lib/firebase'; // Imports the initialized db instance
+import { collection, getDocs, query } from 'firebase/firestore';
 import type { MenuCategory, MenuItem } from '@/types/menu';
 
-// --- THIS IS THE CRUCIAL PART ---
-// This ID is for the single document within 'menuCategories'
-// that holds your actual category subcollections (Appetizers, MainCourses, Desserts).
-// Replace with your actual document ID from Firestore.
-const MENU_CONTAINER_DOCUMENT_ID = "lbb8idZiud8jKPCEKuia";
- // <--- UPDATE THIS!
-
-// --- DEFINE YOUR CATEGORY SUBCOLLECTION NAMES HERE ---
-// This is the order they will appear in.
 const CATEGORY_SUBCOLLECTION_NAMES = ["Appetizers", "Main Courses", "Desserts"];
 
-// Helper function to fetch items for a specific category subcollection
-async function getItemsForCategorySubcollection(categorySubcollectionName: string): Promise<MenuItem[]> {
-  // Path: /menuCategories/{MENU_CONTAINER_DOCUMENT_ID}/{categorySubcollectionName}
-  const itemsCollectionRef = collection(db, 'menuCategories', MENU_CONTAINER_DOCUMENT_ID, categorySubcollectionName);
+async function getItemsForCategorySubcollection(
+  menuContainerId: string, 
+  categorySubcollectionName: string
+): Promise<MenuItem[]> {
+  console.log(`[TEST_DEBUG] getItemsForCategorySubcollection: ENTER - Category: ${categorySubcollectionName}, Container: ${menuContainerId}`);
+  console.log(`[TEST_DEBUG] getItemsForCategorySubcollection: db object is: ${JSON.stringify(db)}`); // Log the db object
+  
+  const itemsCollectionRef = collection(db, 'menuCategories', menuContainerId, categorySubcollectionName);
+  console.log(`[TEST_DEBUG] getItemsForCategorySubcollection: AFTER collection() call - Ref: ${JSON.stringify(itemsCollectionRef).substring(0, 100)}`);
 
-  // If your items have a field for ordering (e.g., 'name', 'orderIndex'), add orderBy here.
-  // const itemsQuery = query(itemsCollectionRef, orderBy('name'));
-  const itemsQuery = query(itemsCollectionRef); // Default order
-  const itemsSnapshot = await getDocs(itemsQuery);
+  const itemsQuery = query(itemsCollectionRef);
+  console.log(`[TEST_DEBUG] getItemsForCategorySubcollection: AFTER query() call - Query: ${JSON.stringify(itemsQuery).substring(0,100)}`);
 
-  const items: MenuItem[] = [];
-  itemsSnapshot.forEach((itemDoc) => {
-    const data = itemDoc.data();
-    items.push({
-      id: itemDoc.id,
-      name: data.name as string,
-      description: data.description as string,
-      price: data.price as number,
-      imageUrl: data.imageUrl as string,
+  try {
+    const itemsSnapshot = await getDocs(itemsQuery);
+    console.log(`[TEST_DEBUG] getItemsForCategorySubcollection: AFTER await getDocs() - Snapshot empty: ${itemsSnapshot.empty}`);
+
+    const items: MenuItem[] = [];
+    itemsSnapshot.forEach((itemDoc) => {
+      console.log(`[TEST_DEBUG] getItemsForCategorySubcollection: Processing itemDoc ID: ${itemDoc.id}`);
+      const data = itemDoc.data();
+      items.push({
+        id: itemDoc.id,
+        name: data.name as string,
+        description: data.description as string,
+        price: data.price as number,
+        imageUrl: data.imageUrl as string,
+      });
     });
-  });
-  return items;
+    console.log(`[TEST_DEBUG] getItemsForCategorySubcollection: EXIT - Returning ${items.length} items`);
+    return items;
+  } catch (e) {
+    console.error(`[TEST_DEBUG] getItemsForCategorySubcollection: ERROR in getDocs or processing:`, e);
+    throw e; // Re-throw to be caught by the main handler
+  }
 }
 
-export async function GET(request: Request) {
+export async function handleMenuGetRequest(
+    _request: Request,
+    menuContainerDocId: string | undefined
+): Promise<NextResponse> {
+  console.log(`[TEST_DEBUG] handleMenuGetRequest: ENTER - ID: ${menuContainerDocId}`);
+  if (!menuContainerDocId) {
+    console.log("[TEST_DEBUG] handleMenuGetRequest: ID is undefined, returning 500.");
+    return NextResponse.json(
+      { error: "Server configuration error. Please contact support." },
+      { status: 500 }
+    );
+  }
+
   try {
-    console.log(`Fetching menu using container document ID: ${MENU_CONTAINER_DOCUMENT_ID}`);
+    console.log(`[TEST_DEBUG] handleMenuGetRequest: TRY block - Fetching menu using container ID: ${menuContainerDocId}`);
     const menuData: MenuCategory[] = [];
 
-    // Iterate over your predefined category subcollection names
     for (const categoryName of CATEGORY_SUBCOLLECTION_NAMES) {
-      console.log(`Processing category subcollection: ${categoryName}`);
-      const items = await getItemsForCategorySubcollection(categoryName);
-
+      console.log(`[TEST_DEBUG] handleMenuGetRequest: LOOP - Processing category: ${categoryName}`);
+      const items = await getItemsForCategorySubcollection(menuContainerDocId, categoryName);
+      console.log(`[TEST_DEBUG] handleMenuGetRequest: LOOP - Received ${items.length} items for ${categoryName}`);
       menuData.push({
-        id: categoryName, // e.g., "Appetizers"
-        name: categoryName.replace(/([A-Z](?=[a-z]))/g, ' $1').trim(), // Format for display, e.g., "Main Courses"
+        id: categoryName,
+        name: categoryName.replace(/([A-Z](?=[a-z]))/g, ' $1').trim(),
         items: items,
       });
     }
     
-    console.log("Final menuData to be sent:", JSON.stringify(menuData, null, 2));
-
+    console.log("[TEST_DEBUG] handleMenuGetRequest: TRY block - Successfully processed all categories. MenuData length:", menuData.length);
     return NextResponse.json(menuData, {
       headers: {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
@@ -65,55 +79,14 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    console.error("Error fetching menu from Firestore:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
-    return NextResponse.json(
-      { error: "Failed to fetch menu data", details: errorMessage },
-      { status: 500 }
-    );
+    // SIMPLIFIED CATCH BLOCK FOR DEBUGGING
+    console.error("[TEST_DEBUG] handleMenuGetRequest: CATCH block - Error caught:", error);
+    // Directly return, bypassing complex error message construction for now
+    return NextResponse.json({ error: "Internal server error during test" }, { status: 503 }); // Use 503 to distinguish
   }
 }
-/* // src/app/api/menu/route.ts
-import { NextResponse } from 'next/server';
-import type { MenuCategory, MenuItem } from '@/types/menu'; // Import types
 
-// Sample menu data (could be from a database in a real app)
-const menuData: MenuCategory[] = [
-  {
-    id: 1,
-    name: 'Appetizers',
-    items: [
-      { id: 101, name: 'Spring Rolls', description: 'Crispy vegetable spring rolls with sweet chili sauce rolls with sweet chili sauce .', price: 8.90, imageUrl: '/images/pexels-robinstickel-70497.jpg' },
-      { id: 102, name: 'Garlic Bread', description: 'Toasted bread with garlic butter and herbs.', price: 6.50, imageUrl: '/images/pexels-fotios-photos-1279330.jpg' },
-      { id: 103, name: 'Bruschetta', description: 'Grilled bread with tomato and basil.', price: 9.25, imageUrl: '/images/pexels-fotios-photos-1279330.jpg' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Main Courses',
-    items: [
-      { id: 201, name: 'Grilled Salmon', description: 'Salmon fillet with asparagus.', price: 22.99, imageUrl: '/images/pexels-fotios-photos-1279330.jpg' },
-      { id: 202, name: 'Pasta Carbonara', description: 'Classic Italian pasta.', price: 18.50, imageUrl: '/images/pexels-robinstickel-70497.jpg' },
-      { id: 203, name: 'Steak Frites', description: 'Grilled steak with french fries.', price: 28.00, imageUrl: '/images/pexels-robinstickel-70497.jpg' },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Desserts',
-    items: [
-      { id: 301, name: 'Chocolate Lava Cake', description: 'Warm chocolate cake with molten center.', price: 9.99, imageUrl: '/images/pexels-robinstickel-70497.jpg' },
-      { id: 302, name: 'Tiramisu', description: 'Classic Italian coffee-flavored dessert.', price: 8.75, imageUrl: '/images/pexels-robinstickel-70497.jpg' },
-    ],
-  },
-];
-
-export async function GET(request: Request) {
-  return NextResponse.json(
-    menuData, // First argument: the body
-    {         // Second argument: the init object (ResponseInit)
-      headers: {
-        'Cache-Control': 'no-store, max-age=0, must-revalidate', // Aggressive no-caching
-      },
-    }
-  );
-} */
+export async function GET(request: Request): Promise<NextResponse> {
+  const menuContainerIdFromEnv = process.env.NEXT_PUBLIC_MENU_CONTAINER_DOCUMENT_ID;
+  return handleMenuGetRequest(request, menuContainerIdFromEnv);
+}

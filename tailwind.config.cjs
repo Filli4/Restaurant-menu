@@ -14,6 +14,15 @@ module.exports = {
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      animation: {
+        bounceOnce: 'bounceOnce 0.8s ease-out',
+      },
+      keyframes: {
+        bounceOnce: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-15px)' },
+        },
+      },
     },
   },
   plugins: [

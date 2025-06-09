@@ -6,21 +6,20 @@ import Confetti from 'react-confetti';
 
 interface CelebrationOverlayProps {
   show: boolean;
-  /** Duration for the bottom-to-top disappearance animation in milliseconds. */
   disappearDuration?: number;
 }
 
 const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
   show,
-  disappearDuration = 1500, // Default 1.5 seconds for the disappearance wipe
+  disappearDuration = 1500, 
 }) => {
-  // Stores the full intended size of the canvas (full width, 90% height)
+  
   const [baseCanvasSize, setBaseCanvasSize] = useState<{ width: number; height: number }>({
     width: 0,
     height: 0,
   });
 
-  // Stores the current animated height of the confetti canvas
+  
   const [animatedCanvasHeight, setAnimatedCanvasHeight] = useState<number>(0);
 
   // Tracks if the disappearance animation is currently active
@@ -38,14 +37,10 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
           width: newBaseWidth,
           height: newBaseHeight,
         });
-
-        // If confetti is currently supposed to be fully visible (not in disappearance phase),
-        // update its animated height to the new base height.
         if (show && !isDisappearing) {
           setAnimatedCanvasHeight(newBaseHeight);
         }
-        // If it's disappearing, the animation continues based on the height it started with.
-        // For a more complex resize handling during disappearance, the animation logic would need adjustments.
+        
       }
     }
 
@@ -97,7 +92,6 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
         };
         animationFrameId.current = requestAnimationFrame(animateDisappear);
       } else {
-        // If 'show' is false and there's no height to animate (or already 0), ensure it's 0
         setAnimatedCanvasHeight(0);
         setIsDisappearing(false);
       }
@@ -110,12 +104,7 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
         animationFrameId.current = null;
       }
     };
-  }, [show, baseCanvasSize, disappearDuration, animatedCanvasHeight]); // animatedCanvasHeight added to correctly trigger disappearance from current height
-
-  // Determine if the confetti component should be rendered
-  // Render if 'show' is true (actively showing),
-  // OR if 'isDisappearing' is true and there's still some height to animate.
-  // Also ensure baseCanvasSize.width is available.
+  }, [show, baseCanvasSize, disappearDuration, animatedCanvasHeight]); 
   const shouldRender = (show || (isDisappearing && animatedCanvasHeight > 0)) && baseCanvasSize.width > 0;
 
   if (!shouldRender) {
@@ -126,8 +115,8 @@ const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1000 }}>
       <Confetti
         width={baseCanvasSize.width}
-        height={animatedCanvasHeight} // CRITICAL: Use the animated height here
-        recycle={show}                // Only emit new pieces when 'show' is true
+        height={animatedCanvasHeight} 
+        recycle={show}               
         numberOfPieces={show ? 500 : 0} // Control emission based on 'show'
         gravity={0.40}                // User-provided value (Note: this is high gravity, pieces fall fast)
         initialVelocityX={{ min: -7, max: 7 }}

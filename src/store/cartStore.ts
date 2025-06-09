@@ -29,7 +29,7 @@ export const useCartStore = create<CartState>()(
 
       addItem: (itemToAdd: MenuItem) =>
         set((state) => {
-          const wasCartEmpty = state.items.length === 0; // Check if cart was empty BEFORE adding
+          const wasCartEmpty = state.items.length === 0; 
           const existingItem = state.items.find((i) => i.id === itemToAdd.id);
 
           let newItems;
@@ -39,14 +39,13 @@ export const useCartStore = create<CartState>()(
             );
             return {
               items: newItems,
-              // For existing items, DO NOT change isCartPanelOpen
-              // isCartPanelOpen: state.isCartPanelOpen 
+              
             };
           } else {
             newItems = [...state.items, { ...itemToAdd, quantity: 1 }];
             return {
               items: newItems,
-              // Auto-open panel ONLY if the cart was previously empty
+             
               isCartPanelOpen: wasCartEmpty ? true : state.isCartPanelOpen,
             };
           }
@@ -55,8 +54,8 @@ export const useCartStore = create<CartState>()(
       removeItem: (itemId) =>
         set((state) => ({
           items: state.items.filter((item) => item.id !== itemId),
-          // Consider if panel should close if cart becomes empty.
-          // isCartPanelOpen: state.items.filter((item) => item.id !== itemId).length > 0 ? state.isCartPanelOpen : false,
+         
+          isCartPanelOpen: state.items.filter((item) => item.id !== itemId).length > 0 ? state.isCartPanelOpen : false,
         })),
 
       incrementQuantity: (itemId) =>
@@ -64,7 +63,7 @@ export const useCartStore = create<CartState>()(
           items: state.items.map((item) =>
             item.id === itemId ? { ...item, quantity: item.quantity + 1 } : item
           ),
-          // DO NOT change isCartPanelOpen on increment
+         
         })),
 
       decrementQuantity: (itemId) =>
@@ -75,9 +74,7 @@ export const useCartStore = create<CartState>()(
             )
             .filter((item) => item.quantity > 0);
           
-          // If cart becomes empty after decrement, decide if panel should close.
-          // Let's keep it open to show "empty" message if it was already open.
-          // User can close via toggle or clearCart.
+          
           return { items: updatedItems };
         }),
 

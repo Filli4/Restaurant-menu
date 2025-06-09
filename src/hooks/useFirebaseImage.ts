@@ -1,17 +1,15 @@
 // src/hooks/useFirebaseImage.ts
 import { useState, useEffect } from 'react';
 import { getDownloadURL, ref, StorageError } from 'firebase/storage';
-import { storage } from '@/lib/firebase'; // Your initialized Firebase storage instance
+import { storage } from '@/lib/firebase'; 
 
-// In-memory cache for image URLs
-// Key: Firebase Storage path (string)
-// Value: Download URL (string)
+
 const imageCache = new Map<string, string>();
 
 interface UseFirebaseImageResult {
   imageUrl: string | null;
   isLoading: boolean;
-  error: StorageError | Error | null; // Can be Firebase StorageError or generic Error
+  error: StorageError | Error | null; 
 }
 
 export function useFirebaseImage(imagePath: string | null | undefined): UseFirebaseImageResult {
@@ -24,7 +22,7 @@ export function useFirebaseImage(imagePath: string | null | undefined): UseFireb
     if (!imagePath) {
       setImageUrl(null);
       setIsLoading(false);
-      setError(new Error("No image path provided.")); // Or setError(null) if preferred for no path
+      setError(new Error("No image path provided.")); 
       return;
     }
 
@@ -36,14 +34,14 @@ export function useFirebaseImage(imagePath: string | null | undefined): UseFireb
       return;
     }
 
-    let isMounted = true; // To prevent state updates on unmounted component
+    let isMounted = true; 
 
     const fetchImage = async () => {
       if (!isMounted) return;
 
       setIsLoading(true);
       setError(null);
-      setImageUrl(null); // Clear previous URL if path changes
+      setImageUrl(null); 
 
       try {
         const imageRef = ref(storage, imagePath);
@@ -51,12 +49,12 @@ export function useFirebaseImage(imagePath: string | null | undefined): UseFireb
 
         if (isMounted) {
           setImageUrl(url);
-          imageCache.set(imagePath, url); // Store in cache
+          imageCache.set(imagePath, url); 
         }
       } catch (err) {
         console.error(`useFirebaseImage: Error fetching image for path: ${imagePath}`, err);
         if (isMounted) {
-          if (err instanceof Error) { // Catches StorageError as well
+          if (err instanceof Error) { 
             setError(err);
           } else {
             setError(new Error('An unknown error occurred while fetching the image.'));
@@ -72,9 +70,9 @@ export function useFirebaseImage(imagePath: string | null | undefined): UseFireb
     fetchImage();
 
     return () => {
-      isMounted = false; // Cleanup function to set isMounted to false when component unmounts
+      isMounted = false; 
     };
-  }, [imagePath]); // Dependency array: re-run effect if imagePath changes
+  }, [imagePath]); 
 
   return { imageUrl, isLoading, error };
 }

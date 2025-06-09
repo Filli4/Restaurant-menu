@@ -1,14 +1,14 @@
 // src/components/menuCards/MenuItemCard.tsx
 'use client';
 
-import React from 'react'; // Import React
+import React from 'react';
 import { useCartStore, MenuItem } from '@/store/cartStore';
 import ItemImageDisplay from '../ItemImageDisplay';
 
 interface MenuItemCardProps {
   item: MenuItem;
-  itemIndexInCategory: number; // Index of the item within its category
-  categoryId: string;         // ID of the category (e.g., 'Appetizers')
+  itemIndexInCategory: number; 
+  categoryId: string;
 }
 
 // Using React.memo for MenuItemCard as it's rendered in a list
@@ -22,11 +22,8 @@ const MenuItemCard = React.memo(function MenuItemCard({ item, itemIndexInCategor
 
   const imageSizes = "(max-width: 639px) 90vw, (max-width: 1023px) 45vw, (max-width: 1279px) 30vw, 22vw";
 
-  // Determine image priority:
-  // Example: Prioritize the first 1-2 items in the very first category shown.
-  // This is a heuristic and might need adjustment based on your typical first category.
   // Assumes categories are rendered in a somewhat stable order.
-  const isPriorityImage = categoryId === "Appetizers" && itemIndexInCategory < 2; // Prioritize first 2 appetizers
+  const isPriorityImage = categoryId === "Appetizers" && itemIndexInCategory < 3; // Prioritize first 2 appetizers
 
 
   return (

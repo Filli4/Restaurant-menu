@@ -2,12 +2,12 @@
 'use client';
 
 import React, { ReactNode, useState, useEffect } from 'react';
-import Image, { ImageProps } from 'next/image'; // Import ImageProps if you want to type the event
+import Image from 'next/image'; 
 import { useFirebaseImage } from '@/hooks/useFirebaseImage';
 
 const DefaultLoadingPlaceholder: React.FC = () => (
   <div className="w-full h-full animate-pulse bg-gray-200 flex items-center justify-center rounded-inherit">
-    <p className="text-gray-500 text-xs">Loading...</p>
+    <p className="text-gray-500 text-xs animate-pulse">Loading...</p>
   </div>
 );
 
@@ -72,14 +72,8 @@ const ItemImageDisplay: React.FC<ItemImageDisplayProps> = ({
       sizes={sizes}
       className={imageClassName}
       priority={priority}
-      // Replace onLoadingComplete with onLoad
-      onLoad={(event) => {
-        // event is of type React.SyntheticEvent<HTMLImageElement, Event>
-        // You might not need the event object for your current logic
-        // For example, to get natural dimensions:
-        // const { naturalWidth, naturalHeight } = event.currentTarget;
-        // console.log(`Image ${altText} loaded with dimensions: ${naturalWidth}x${naturalHeight}`);
-        setNextImageLoadError(false); // Reset error if a subsequent load is successful
+      onLoad={(event) => { 
+        setNextImageLoadError(false); 
       }}
       onError={(e) => {
         console.error(`ItemImageDisplay: Next/Image error for ${altText} (URL: ${firebaseImageUrl}):`, (e.target as HTMLImageElement).src);

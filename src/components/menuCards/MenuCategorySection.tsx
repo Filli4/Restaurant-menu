@@ -1,5 +1,5 @@
 // src/components/menuCards/MenuCategorySection.tsx
-import React from 'react'; // Import React
+import React from 'react'; 
 import { MenuCategory, MenuItem } from '@/types/menu';
 import MenuItemCard from './MenuItemCard';
 
@@ -23,7 +23,6 @@ const MenuCategorySection = React.memo(function MenuCategorySection({ category }
       {category.items.length > 0 ? (
         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {category.items.map((item: MenuItem, index: number) => (
-            // Pass index to MenuItemCard if you want to set priority based on overall item index
             <MenuItemCard key={item.id} item={item} itemIndexInCategory={index} categoryId={category.id} />
           ))}
         </div>

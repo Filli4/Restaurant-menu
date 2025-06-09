@@ -27,28 +27,19 @@ body {
     rgb(var(--background-start-rgb));
 }
 
-/* In your global CSS file (e.g., styles/globals.css or similar) */
+
 @layer utilities {
   .animate-bounceOnce {
-    /*
-      The 'animation-timing-function' controls the acceleration curve of the animation.
-      'ease-in-out' (approx. cubic-bezier(0.42, 0, 0.58, 1.0)) is the original:
-        animation: bounceOnce 0.8s ease-in-out;
-
-      We are changing it to 'ease' (cubic-bezier(0.25, 0.1, 0.25, 1.0)).
-      This function has a slightly more noticeable slow start, speeds up in the middle,
-      and then slows down more noticeably towards the end. This can make the
-      transitions at the start and end of the movement phases feel more gradual and "smoother".
-    */
+    
     animation: bounceOnce 0.8s cubic-bezier(0.25, 0.1, 0.25, 1.0);
   }
 
   @keyframes bounceOnce {
     0%, 100% {
-      transform: translateY(0); /* Start and end at the original position */
+      transform: translateY(0); 
     }
     50% {
-      transform: translateY(-15px); /* Peak of the bounce */
+      transform: translateY(-15px); 
     }
   }
 }

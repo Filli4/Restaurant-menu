@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { ShoppingCartIcon } from '@heroicons/react/24/outline';
-import { useCartStore } from '@/store/cartStore'; // Adjust path if necessary
+import { useCartStore } from '@/store/cartStore'; 
 import React, { useState, useEffect } from 'react';
 
 export default function Navbar() {
@@ -24,14 +24,13 @@ export default function Navbar() {
 
   // Pre-mount: can return null or a basic structure for the icon area
   if (!hasMounted) {
-    // Or render a placeholder if you prefer
   }
 
   return (
     <nav className="bg-gray-800 text-white shadow-md sticky top-0 z-40">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold hover:text-gray-300 transition-colors">
-          MyRestaurant {/* Or your project name */}
+          SmakMeny
         </Link>
         
         <div className="flex items-center space-x-6">

@@ -4,7 +4,7 @@ export interface MenuItem {
     name: string;
     description: string;
     price: number;
-    imageUrl?: string; // Image URL is now more prominent
+    imageUrl?: string; 
   }
   
   export interface MenuCategory {
@@ -13,7 +13,7 @@ export interface MenuItem {
     items: MenuItem[];
   }
 
-  // We'll also need a type for items *in* the cart, which includes quantity
+  
 export interface CartItem extends MenuItem {
   quantity: number;
 }

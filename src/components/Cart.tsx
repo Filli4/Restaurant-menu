@@ -2,12 +2,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useCartStore, type CartItem as ZustandCartItem } from '@/store/cartStore'; // Adjust path if necessary
-import { db } from '@/lib/firebase'; // Adjust path if necessary
+import { useCartStore, type CartItem as ZustandCartItem } from '@/store/cartStore';
+import { db } from '@/lib/firebase'; 
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { XMarkIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
-import ItemImageDisplay from './ItemImageDisplay'; // Adjust path if necessary
+import ItemImageDisplay from './ItemImageDisplay'; 
 
 export default function Cart() {
   const router = useRouter();
@@ -25,7 +25,8 @@ export default function Cart() {
   const removeItem = useCartStore((state) => state.removeItem);
   const incrementQuantity = useCartStore((state) => state.incrementQuantity);
   const decrementQuantity = useCartStore((state) => state.decrementQuantity);
-  const clearCart = useCartStore((state) => state.clearCart); // clearCart will also close panel
+  const clearCart = useCartStore((state) => state.clearCart); 
+  // clearCart will also close panel
 
   const isCartPanelOpen = useCartStore((state) => state.isCartPanelOpen);
   const toggleCartPanel = useCartStore((state) => state.toggleCartPanel);

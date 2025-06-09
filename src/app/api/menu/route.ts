@@ -4,7 +4,7 @@ import { db } from '@/lib/firebase'; // Imports the initialized db instance
 import { collection, getDocs, query } from 'firebase/firestore';
 import type { MenuCategory, MenuItem } from '@/types/menu';
 
-const CATEGORY_SUBCOLLECTION_NAMES = ["Appetizers", "Main Courses", "Desserts"];
+const CATEGORY_SUBCOLLECTION_NAMES = ["Appetizers", "Main Courses", "Desserts","Drinks"];
 
 async function getItemsForCategorySubcollection(
   menuContainerId: string, 
